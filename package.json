@@ -1,0 +1,13 @@
+{
+  "name": "SERVIDOR - QR",
+  "version": "1.0.0",
+  "description": "Servidor de colegio QR",
+  "main": "server.js",
+  "author": "Juan Brunero",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "greenlock-express": "^2.6.8",
+    "socket.io": "^2.2.0"
+  }
+}
