@@ -4,47 +4,50 @@ let dif = 10;
 let ancho;
 let alto;
 
-let video;
+let bot = {};
+let vid = {};
+
+let cont = 0;
+
+const codeReader = new ZXing.BrowserQRCodeReader();
 
 function setup() {
 
-  socket = io.connect('http://10.10.3.169:3000');
+  socket = io.connect('https://192.168.0.5:3000');
 
   //MSJ DE RECEPCION
   socket.on('recb', (data) => console.log("Recibido"));
 
-  noLoop();
+  ancho = windowWidth;
+  alto = windowHeight;
 
-  video = createCapture(VIDEO);
-  video.size(min(480, windowWidth - 2 * dif), min(480, (windowHeight - 2 * dif - windowHeight/8)));
-  video.position(dif, 4*dif);
-  createCanvas(windowWidth, windowHeight);
-  setInterval(scan, 500);
+  createCanvas(ancho, alto);
+
+  bot.ancho = (ancho - 3 * dif) / 2;
+  bot.alto = (alto - 3 * dif) / 8;
+
+  vid.ancho = bot.ancho
+  vid.alto = bot.alto*3
+
+  codeReader
+    .decodeFromInputVideoDevice(undefined, 'video')
+    .then(result => socket.emit('qrS', result.text))
+    .catch(err => console.error(err));
+
+  select('video').position(dif, 2*dif+bot.alto);
+  select('video').size(vid.ancho, vid.alto);
 }
 
 function draw() {
   background(51);
-  ancho = (windowWidth - 3 * dif) / 2;
-  alto = windowHeight / 8;
   drawMenu();
-}
-
-function scan(){
-  video.loadPixels();
-  let data = jsQR(video.pixels, video.width, video.height);
-  if(data != null){
-    console.log(data);
-  }else{
-    console.log("No data");
-  }
 }
 
 function mouseClicked(){
   let data = undefined;
-  if(mouseTouch(dif, dif + ancho, dif ,dif + alto)){
-    data = "Bot1";
+  if(mouseTouch(dif, dif, dif + bot.ancho, dif + bot.alto)){
     scan();
-  }else if(mouseTouch(2*dif + ancho, 2*dif + 2*ancho, dif, dif + alto)){
+  }else if(mouseTouch(2 * dif + bot.ancho, dif, 2 * (dif + bot.ancho), dif+bot.alto)){
     data = "Bot2";
   }
   if(data != undefined){
@@ -53,17 +56,24 @@ function mouseClicked(){
   }
 }
 
-function mouseTouch(xm, xM, ym, yM){
+function mouseTouch(xm, ym, xM, yM){
   return xm < mouseX && mouseX < xM && ym < mouseY && mouseY < yM
 }
 
 function drawMenu(){
   fill(255);
-  rect(dif, dif, ancho, alto);
-  rect(ancho + 2 * dif, dif, ancho, alto);
+  rect(dif, dif, bot.ancho, bot.alto);
+  rect(2 * dif + bot.ancho, dif, bot.ancho, bot.alto);
 }
 
 function windowResized() {
 	resizeCanvas(windowWidth, windowHeight);
-  video.size(min(480, windowWidth - 2 * dif), min(480, (windowHeight - 2 * dif - windowHeight/8)));
+  ancho = windowWidth;
+  alto = windowHeight;
+  bot.ancho = (ancho - 3 * dif) / 2;
+  bot.alto = (alto - 3 * dif) / 8;
+}
+
+function scan(){
+
 }

@@ -19,7 +19,6 @@ let server = https.createServer({
 function listen() {
   let host = server.address().address;
   let port = server.address().port;
-  console.log('Servidor http://' + host + ':' + port);
 }
 
 app.use(express.static('public'));
@@ -34,6 +33,14 @@ io.sockets.on('connection', (socket) => {
 
         socket.emit('recb', "ok");
         console.log("Recibido");
+
+      }
+    );
+
+    socket.on('qrS', (data) => {
+
+        socket.emit('recb', "ok");
+        console.log(data);
 
       }
     );
