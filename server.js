@@ -6,8 +6,6 @@ let https = require('https');
 
 let app = express();
 
-//let server = app.listen(process.env.PORT || 3000, listen);
-
 let server = https.createServer({
   key:  fs.readFileSync('server.key'),
   cert: fs.readFileSync('server.crt')
@@ -40,8 +38,23 @@ io.sockets.on('connection', (socket) => {
     socket.on('qrS', (data) => {
 
         socket.emit('recb', "ok");
-        console.log(data);
+        obj = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+        qrSearched = obj.info.find((tmp) => tmp.name == data);
+        console.log((qrSearched == undefined)? "Encontre: " + qrSearched.name : "No encontre");
+        delete obj, qrSearched;
+      }
+    );
 
+    socket.on('qrW', (data) => {
+
+        obj = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+        if(undefined == obj.info.find((tmp) => tmp.name == data)){
+          console.log(data);
+          obj.info.push(data);
+        }
+        json = JSON.stringify(obj);
+        fs.writeFile('data.json', json, 'utf8', () => console.log("Saved"));
+        delete obj, json;
       }
     );
 

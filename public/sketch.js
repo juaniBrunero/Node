@@ -13,7 +13,7 @@ const codeReader = new ZXing.BrowserQRCodeReader();
 
 function setup() {
 
-  socket = io.connect('https://192.168.0.5:3000');
+  socket = io.connect('https://10.10.3.169:3000');
 
   //MSJ DE RECEPCION
   socket.on('recb', (data) => console.log("Recibido"));
@@ -29,11 +29,6 @@ function setup() {
   vid.ancho = bot.ancho
   vid.alto = bot.alto*3
 
-  codeReader
-    .decodeFromInputVideoDevice(undefined, 'video')
-    .then(result => socket.emit('qrS', result.text))
-    .catch(err => console.error(err));
-
   select('video').position(dif, 2*dif+bot.alto);
   select('video').size(vid.ancho, vid.alto);
 }
@@ -46,9 +41,9 @@ function draw() {
 function mouseClicked(){
   let data = undefined;
   if(mouseTouch(dif, dif, dif + bot.ancho, dif + bot.alto)){
-    scan();
+    scanLook();
   }else if(mouseTouch(2 * dif + bot.ancho, dif, 2 * (dif + bot.ancho), dif+bot.alto)){
-    data = "Bot2";
+    scanSearch();
   }
   if(data != undefined){
     socket.emit('send', data);
@@ -74,6 +69,16 @@ function windowResized() {
   bot.alto = (alto - 3 * dif) / 8;
 }
 
-function scan(){
+function scanLook(){
+  codeReader
+    .decodeFromInputVideoDevice(undefined, 'video')
+    .then(result => {socket.emit('qrS', result.text)})
+    .catch(err => console.error(err));
+}
 
+function scanSearch(){
+  codeReader
+    .decodeFromInputVideoDevice(undefined, 'video')
+    .then(result => {socket.emit('qrW', {name:result.text})})
+    .catch(err => console.error(err));
 }
