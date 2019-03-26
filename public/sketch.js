@@ -1,3 +1,4 @@
+
 let socket;
 
 let dif = 10;
@@ -12,15 +13,19 @@ let mode = 0;
 
 const codeReader = new ZXing.BrowserQRCodeReader();
 
-let botonT = {};
+let botonPC;
+let botonADD;
+let botonDEL;
+
 let botonesPC = {};
+let botonC = {};
 
 let lastData = "Error"
 
 function setup() {
 
-  socket = io.connect('https://192.168.0.5:3000');
-  //socket = io.connect('https://10.10.3.169:3000');
+  //socket = io.connect('https://192.168.0.5:3000');
+  socket = io.connect('https://10.10.3.169:3000');
 
   //MSJ DE RECEPCION
   socket.on('recb'   , (data) => console.log("Recibido"));
@@ -37,10 +42,28 @@ function setup() {
   bot.alto = (alto - 3 * dif) / 8;
 
   select('video').position(dif, 2*dif + bot.alto);
-  select('video').size(max(select('video').width, bot.ancho), max(select('video').height, bot.ancho));
+  select('video').size(bot.ancho, max(select('video').height, bot.ancho));
 
-  preparar(botonT, 20, 5, "Siguiente", "Tipo dispositivo");
-  botonT.buttonT.mousePressed(typeSet);
+  //preparar(botonT, 20, 5, "Siguiente", "Tipo dispositivo");
+  //botonT.buttonT.mousePressed(typeSet);
+
+  botonPC = createButton("AGREGAR PC");
+  botonPC.position(60, 40);
+  botonPC.mousePressed(modoPC);
+  botonPC.hide();
+
+  botonADD = createButton("AGREGAR COMENTARIO");
+  botonADD.position(60, 70);
+  botonADD.mousePressed(modoADD);
+  botonADD.hide();
+
+  botonDEL = createButton("ELIMINAR PC");
+  botonDEL.position(60, 100);
+  botonDEL.mousePressed(modoDEL);
+  botonDEL.hide();
+
+  preparar(botonC, 20, 5, "Siguiente", "Cambio");
+  botonC.buttonT.mousePressed(typeCOM);
 
   prepararPC(botonesPC, 20, 5, "Guadar", "Descripcion Pc");
   botonesPC.buttonPC.mousePressed(typePc);
@@ -50,16 +73,20 @@ function draw() {
   background(51);
   switch (mode) {
     case 0:
-      drawMenu();
-      if(lastData != "Error"){
-        verData(lastData);
-      }
-      break;
+    drawMenu();
+    if(lastData != "Error"){
+      verData(lastData);
+    }
+    break;
     case 1:
-      completeMenu();
-      break;
+    completeMenu();
+    break;
     case 2:
-      completarPC();
+    completarPC();
+    break;
+    case 3:
+    completarCOM();
+    break;
     default:
   }
 }
@@ -94,7 +121,7 @@ function drawMenu(){
 }
 
 function windowResized() {
-	resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(windowWidth, windowHeight);
   ancho = windowWidth;
   alto = windowHeight;
   bot.ancho = (ancho - 3 * dif) / 2;
@@ -104,39 +131,46 @@ function windowResized() {
 function scanLook(){
   select('video').show();
   codeReader
-    .decodeFromInputVideoDevice(undefined, 'video')
-    .then(result => {socket.emit('qrS', result.text);
-                     fill(255);
-                     text(result.text, ancho/2, 2*dif+bot.alto);})
-    .catch(err => console.error(err));
+  .decodeFromInputVideoDevice(undefined, 'video')
+  .then(result => {socket.emit('qrS', result.text);
+  fill(255);
+  query.name = result.text;
+  text(result.text, ancho/2, 2*dif+bot.alto);})
+  .catch(err => console.error(err));
 }
 
 function scanSearch(){
   select('video').show();
   codeReader
-    .decodeFromInputVideoDevice(undefined, 'video')
-    .then(result => {cambiarModo(1); query.name = result.text;})
-    .catch(err => console.error(err));
+  .decodeFromInputVideoDevice(undefined, 'video')
+  .then(result => {cambiarModo(1); query.name = result.text;})
+  .catch(err => console.error(err));
 }
 
 function completeMenu(){
   background(51);
-  botonT.typeT.show();
-  botonT.buttonT.show();
-  botonT.greetingT.show();
+  fill(255);
+  textSize(18);
+  text("SELECCIONE MODO", 60, 30);
+  botonPC.show();
+  botonADD.show();
+  botonDEL.show();
   select('video').hide();
   if(query.type != undefined){
     if(query.type == "PC"){
       cambiarModo(2);
     }else if(query.type == "DEL"){
       socket.emit('qrD', query.name);
+      query = {};
       cambiarModo(0);
+    }else if(query.type == "ADD"){
+      cambiarModo(3);
     }else{
-      cambiarModo(4);
+      cambiarModo(0);
     }
-    botonT.typeT.hide();
-    botonT.buttonT.hide();
-    botonT.greetingT.hide();
+    botonPC.hide();
+    botonADD.hide();
+    botonDEL.hide();
   }
 }
 
@@ -170,6 +204,23 @@ function completarPC(){
     botonesPC.saidLugar.hide();
     botonesPC.typeLugar.hide();
     botonesPC.buttonPC.hide();
+  }
+}
+
+function completarCOM(){
+  background(51);
+  botonC.typeT.show();
+  botonC.buttonT.show();
+  botonC.greetingT.show();
+  select('video').hide();
+  if(query.com != undefined){
+    cambiarModo(0);
+    socket.emit('qrA', query);
+    query = {};
+    lastData = "Error";
+    botonC.typeT.hide();
+    botonC.buttonT.hide();
+    botonC.greetingT.hide();
   }
 }
 
@@ -257,11 +308,16 @@ function typePc(){
   query.lugar = botonesPC.typeLugar.value();
 }
 
+function typeCOM(){
+  query.com = botonC.typeT.value();
+}
+
 function verData(data){
   textSize(18);
   fill(255);
   if(data == "Not"){
-    text("No encontrado", ancho/2 + dif, 5*dif+bot.alto);
+    text(query.name     , ancho/2 + dif, 5*dif+bot.alto);
+    text("No encontrado", ancho/2 + dif, 8*dif+bot.alto);
   }else if(data == "YES"){
     text("Ya se encuentra", ancho/2 + dif, 5*dif+bot.alto);
   }else if(data.type == "PC"){
@@ -275,4 +331,16 @@ function verData(data){
     text(data.name, ancho/2+ dif, 5*dif+bot.alto);
     text(data.type, ancho/2+ dif, 6*dif+bot.alto);
   }
+}
+
+function modoPC(){
+  query.type = "PC"
+}
+
+function modoADD(){
+  query.type = "ADD"
+}
+
+function modoDEL(){
+  query.type = "DEL"
 }

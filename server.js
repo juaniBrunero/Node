@@ -72,7 +72,7 @@ io.sockets.on('connection', (socket) => {
         obj = JSON.parse(fs.readFileSync('data.json', 'utf8'));
         if(undefined != obj.info.find((tmp) => tmp.name == data.name)){
           console.log(data);
-          obj.info.push(data);
+          obj.com.push(data);
           socket.emit('mod', data);
         }else{
           socket.emit('mod', "No Estaba");
@@ -89,6 +89,9 @@ io.sockets.on('connection', (socket) => {
         console.log(obj.info.find((tmp) => tmp.name == data));
         if(undefined != obj.info.find((tmp) => tmp.name == data)){
           obj.info.splice(obj.info.findIndex((i) => i.name === data), 1);
+          while(undefined != obj.com.find((tmp) => tmp.name == data)){
+            obj.com.splice(obj.com.findIndex((i) => i.name === data), 1);
+          }
           socket.emit('saved', data);
         }else{
           socket.emit('saved', "No estaba");
