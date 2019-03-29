@@ -91,6 +91,8 @@ function draw() {
   }
 }
 
+//EXPORTAR EXCEL
+
 function mouseClicked(){
   let data = undefined;
   if(mode == 0){
@@ -245,23 +247,44 @@ function preparar(b, x, y, bot, val){
 }
 
 function prepararPC(b, x, y, bot, val){
-  b.saidIP = createElement('h2', "IP: ");
-  b.saidIP.position(x, y);
-  b.saidIP.style('color:#FFFFFF');
+  query.nombre = botonesPC.typeNombre.value();
+  query.lugar = botonesPC.typeLugar.value();
+  query.numero = botonesPC.typeLugar.value();
 
-  b.typeIP = createInput();
-  b.typeIP.position(x+120, y+20);
+  query.ip = botonesPC.typeIP.value();
+  query.ssd = botonesPC.typeSSD.value();
+  query.ramt = botonesPC.typeRAMT.value();
+  query.ramm = botonesPC.typeRAMM.value();
+  query.cpu = botonesPC.typeCPU.value();
+  query.mother = botonesPC.typeMother.value();
+  query.video = botonesPC.typeVideo.value();
+  query.fuente = botonesPC.typeFuente.value();
+  query.mouse = botonesPC.typeMouse.value();
+  query.teclado = botonesPC.typeTeclado.value();
+  query.monitor = botonesPC.typeMonitor.value();
+  query.categoria = botonesPc.typeCategoria.value();
+  query.garantiav = botonesPC.typeGarantiaV.value();
+  query.garantiau = botonesPC.typeGarantiaU.value();
+  query.proveedor = botonesPC.typeProveedor.value();
+  query.fechaI = botonesPC.typeFechaI.value();
 
-  b.saidNombre = createElement('h2', "NOMBRE: ");
-  b.saidNombre.position(x, y+30);
+  b.saidNombre = createElement('h2', "Nombre: ");
+  b.saidNombre.position(x, y);
   b.saidNombre.style('color:#FFFFFF');
 
   b.typeNombre = createInput();
-  b.typeNombre.position(x+120, y+50);
+  b.typeNombre.position(x+120, y+20);
 
-  b.saidMother = createElement('h2', "MOTHER: ");
-  b.saidMother.position(x, y+60);
-  b.saidMother.style('color:#FFFFFF');
+  b.saidLugar = createElement('h2', "Lugar: ");
+  b.saidLugar.position(x, y+30);
+  b.saidLugar.style('color:#FFFFFF');
+
+  b.typeLugar = createInput();
+  b.typeLugar.position(x+120, y+50);
+
+  b.saidNumero = createElement('h2', "Numero: ");
+  b.saidNumero.position(x, y+60);
+  b.saidNumero.style('color:#FFFFFF');
 
   b.typeMother = createInput();
   b.typeMother.position(x+120, y+80);
@@ -301,11 +324,25 @@ function typeSet(){
 }
 
 function typePc(){
-  query.ip = botonesPC.typeIP.value();
   query.nombre = botonesPC.typeNombre.value();
-  query.mother = botonesPC.typeMother.value();
-  query.ssd = botonesPC.typeSSD.value();
   query.lugar = botonesPC.typeLugar.value();
+  query.numero = botonesPC.typeLugar.value();
+  query.ip = botonesPC.typeIP.value();
+  query.ssd = botonesPC.typeSSD.value();
+  query.ramt = botonesPC.typeRAMT.value();
+  query.ramm = botonesPC.typeRAMM.value();
+  query.cpu = botonesPC.typeCPU.value();
+  query.mother = botonesPC.typeMother.value();
+  query.video = botonesPC.typeVideo.value();
+  query.fuente = botonesPC.typeFuente.value();
+  query.mouse = botonesPC.typeMouse.value();
+  query.teclado = botonesPC.typeTeclado.value();
+  query.monitor = botonesPC.typeMonitor.value();
+  query.categoria = botonesPc.typeCategoria.value();
+  query.garantiav = botonesPC.typeGarantiaV.value();
+  query.garantiau = botonesPC.typeGarantiaU.value();
+  query.proveedor = botonesPC.typeProveedor.value();
+  query.fechaI = botonesPC.typeFechaI.value();
 }
 
 function typeCOM(){
@@ -321,12 +358,32 @@ function verData(data){
   }else if(data == "YES"){
     text("Ya se encuentra", ancho/2 + dif, 5*dif+bot.alto);
   }else if(data.type == "PC"){
-    text(data.name  , ancho/2+ dif,  5*dif+bot.alto);
-    text(data.type  , ancho/2+ dif,  8*dif+bot.alto);
-    text(data.ip    , ancho/2+ dif, 11*dif+bot.alto);
-    text(data.nombre, ancho/2+ dif, 14*dif+bot.alto);
-    text(data.ssd   , ancho/2+ dif, 17*dif+bot.alto);
-    text(data.lugar , ancho/2+ dif, 20*dif+bot.alto);
+    text(data.name     , ancho/2+ dif,  5*dif+bot.alto);
+    text(data.type     , ancho/2+ dif,  8*dif+bot.alto);
+    text(data.nombre   , ancho/2+ dif, 11*dif+bot.alto);
+    text(data.lugar    , ancho/2+ dif, 14*dif+bot.alto);
+    text(data.numero   , ancho/2+ dif, 17*dif+bot.alto);
+    text(data.proveedor, ancho/2+ dif, 20*dif+bot.alto);
+    text(data.fechac   , ancho/2+ dif, 23*dif+bot.alto);
+    text(data.fechaI   , ancho/4+ dif, 23*dif+bot.alto);
+
+    text(data.ip       , ancho/2+ dif, 26*dif+bot.alto);
+    text(data.cpu      , ancho/2+ dif, 29*dif+bot.alto);
+    text(data.ssd      , ancho/2+ dif, 32*dif+bot.alto);
+    text(data.ramt     , ancho/2+ dif, 35*dif+bot.alto);
+    text(data.ramm     , ancho/2+ dif, 38*dif+bot.alto);
+    text(data.mother   , ancho/2+ dif, 41*dif+bot.alto);
+    text(data.video    , ancho/2+ dif, 44*dif+bot.alto);
+    text(data.fuente   , ancho/2+ dif, 47*dif+bot.alto);
+
+    text(data.mouse    , ancho/2+ dif, 50*dif+bot.alto);
+    text(data.teclado  , ancho/2+ dif, 53*dif+bot.alto);
+    text(data.monitor  , ancho/2+ dif, 56*dif+bot.alto);
+    text(data.categoria, ancho/2+ dif, 59*dif+bot.alto);
+    text(data.garantiav, ancho/2+ dif, 62*dif+bot.alto);
+    text(data.garantiau, ancho/2+ dif, 65*dif+bot.alto);
+    text(data.windows  , ancho/2+ dif, 68*dif+bot.alto);
+
   }else{
     text(data.name, ancho/2+ dif, 5*dif+bot.alto);
     text(data.type, ancho/2+ dif, 6*dif+bot.alto);
