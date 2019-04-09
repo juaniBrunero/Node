@@ -17,15 +17,21 @@ let botonPC;
 let botonADD;
 let botonDEL;
 
-let botonesPC = {};
+let botonesPC = {said:[], typePc:[]};
 let botonC = {};
+
+//let listaPC = [nombre, lugar, numero, ip, ssd, ramt, ramm, cpu, mother, video, fuente
+//               , mouse, teclado, monitor, categoria, garantiav, garantiau, proveedor, fechaC, fechaI];
+
+let nombrePC = ["Nombre", "Lugar", "Numero", "IP", "SSD", "Cant RAM", "MOD RAM", "CPU", "MOTHER", "GPU", "Fuente"
+              , "Mouse", "Teclado", "Monitor", "Categoria", "Garantia Fecha", "Garantia Lugar", "Proveedor", "Fecha C", "Fecha I"];
 
 let lastData = "Error"
 
 function setup() {
 
-  //socket = io.connect('https://192.168.0.5:3000');
-  socket = io.connect('https://10.10.3.169:3000');
+  socket = io.connect('https://192.168.0.5:3000');
+  //socket = io.connect('https://10.10.3.169:3000');
 
   //MSJ DE RECEPCION
   socket.on('recb'   , (data) => console.log("Recibido"));
@@ -34,7 +40,7 @@ function setup() {
   socket.on('qrSList', (data) => {console.log(data);lastData = data});
 
   ancho = windowWidth;
-  alto = windowHeight;
+  alto = 625;
 
   createCanvas(ancho, alto);
 
@@ -178,34 +184,22 @@ function completeMenu(){
 
 function completarPC(){
   background(51);
-  botonesPC.saidIP.show();
-  botonesPC.typeIP.show();
-  botonesPC.saidNombre.show();
-  botonesPC.typeNombre.show();
-  botonesPC.saidMother.show();
-  botonesPC.typeMother.show();
-  botonesPC.saidSSD.show();
-  botonesPC.typeSSD.show();
-  botonesPC.saidLugar.show();
-  botonesPC.typeLugar.show();
-  botonesPC.buttonPC.show()
+  for (var i = 0; i < botonesPC.typePc.length; i++) {
+    botonesPC.said[i].show();
+    botonesPC.typePc[i].show();
+    botonesPC.buttonPC.show();
+  }
   select('video').hide();
   if(query.ip != undefined){
     cambiarModo(0);
     socket.emit('qrW', query);
     query = {};
     lastData = "Error";
-    botonesPC.saidIP.hide();
-    botonesPC.typeIP.hide();
-    botonesPC.saidNombre.hide();
-    botonesPC.typeNombre.hide();
-    botonesPC.saidMother.hide();
-    botonesPC.typeMother.hide();
-    botonesPC.saidSSD.hide();
-    botonesPC.typeSSD.hide();
-    botonesPC.saidLugar.hide();
-    botonesPC.typeLugar.hide();
-    botonesPC.buttonPC.hide();
+    for (var i = 0; i < botonesPC.typePc.length; i++) {
+      botonesPC.said[i].hide();
+      botonesPC.typePc[i].hide();
+      botonesPC.buttonPC.hide();
+    }
   }
 }
 
@@ -247,102 +241,44 @@ function preparar(b, x, y, bot, val){
 }
 
 function prepararPC(b, x, y, bot, val){
-  query.nombre = botonesPC.typeNombre.value();
-  query.lugar = botonesPC.typeLugar.value();
-  query.numero = botonesPC.typeLugar.value();
 
-  query.ip = botonesPC.typeIP.value();
-  query.ssd = botonesPC.typeSSD.value();
-  query.ramt = botonesPC.typeRAMT.value();
-  query.ramm = botonesPC.typeRAMM.value();
-  query.cpu = botonesPC.typeCPU.value();
-  query.mother = botonesPC.typeMother.value();
-  query.video = botonesPC.typeVideo.value();
-  query.fuente = botonesPC.typeFuente.value();
-  query.mouse = botonesPC.typeMouse.value();
-  query.teclado = botonesPC.typeTeclado.value();
-  query.monitor = botonesPC.typeMonitor.value();
-  query.categoria = botonesPc.typeCategoria.value();
-  query.garantiav = botonesPC.typeGarantiaV.value();
-  query.garantiau = botonesPC.typeGarantiaU.value();
-  query.proveedor = botonesPC.typeProveedor.value();
-  query.fechaI = botonesPC.typeFechaI.value();
+  for (var i = 0; i < nombrePC.length; i++) {
+    b.said[i] = createElement('h2', nombrePC[i]);
+    b.said[i].position(x, y+i*30);
+    b.said[i].style('color:#FFFFFF');
+    b.said[i].hide();
 
-  b.saidNombre = createElement('h2', "Nombre: ");
-  b.saidNombre.position(x, y);
-  b.saidNombre.style('color:#FFFFFF');
-
-  b.typeNombre = createInput();
-  b.typeNombre.position(x+120, y+20);
-
-  b.saidLugar = createElement('h2', "Lugar: ");
-  b.saidLugar.position(x, y+30);
-  b.saidLugar.style('color:#FFFFFF');
-
-  b.typeLugar = createInput();
-  b.typeLugar.position(x+120, y+50);
-
-  b.saidNumero = createElement('h2', "Numero: ");
-  b.saidNumero.position(x, y+60);
-  b.saidNumero.style('color:#FFFFFF');
-
-  b.typeMother = createInput();
-  b.typeMother.position(x+120, y+80);
-
-  b.saidSSD = createElement('h2', "SSD: ");
-  b.saidSSD.position(x, y+90);
-  b.saidSSD.style('color:#FFFFFF');
-
-  b.typeSSD = createInput();
-  b.typeSSD.position(x+120, y+110);
-
-  b.saidLugar = createElement('h2', "LUGAR: ");
-  b.saidLugar.position(x, y+120);
-  b.saidLugar.style('color:#FFFFFF');
-
-  b.typeLugar = createInput();
-  b.typeLugar.position(x+120, y+140);
+    b.typePc[i] = createInput();
+    b.typePc[i].position(x+180, y+20+i*30);
+    b.typePc[i].hide();
+  }
 
   b.buttonPC = createButton(bot);
-  b.buttonPC.position(x+320, y+140);
-
-  b.saidIP.hide();
-  b.typeIP.hide();
-  b.saidNombre.hide();
-  b.typeNombre.hide();
-  b.saidMother.hide();
-  b.typeMother.hide();
-  b.saidSSD.hide();
-  b.typeSSD.hide();
-  b.saidLugar.hide();
-  b.typeLugar.hide();
+  b.buttonPC.position(x+360, y-10+nombrePC.length*30);
   b.buttonPC.hide();
 }
 
-function typeSet(){
-  query.type = botonT.typeT.value();
-}
-
 function typePc(){
-  query.nombre = botonesPC.typeNombre.value();
-  query.lugar = botonesPC.typeLugar.value();
-  query.numero = botonesPC.typeLugar.value();
-  query.ip = botonesPC.typeIP.value();
-  query.ssd = botonesPC.typeSSD.value();
-  query.ramt = botonesPC.typeRAMT.value();
-  query.ramm = botonesPC.typeRAMM.value();
-  query.cpu = botonesPC.typeCPU.value();
-  query.mother = botonesPC.typeMother.value();
-  query.video = botonesPC.typeVideo.value();
-  query.fuente = botonesPC.typeFuente.value();
-  query.mouse = botonesPC.typeMouse.value();
-  query.teclado = botonesPC.typeTeclado.value();
-  query.monitor = botonesPC.typeMonitor.value();
-  query.categoria = botonesPc.typeCategoria.value();
-  query.garantiav = botonesPC.typeGarantiaV.value();
-  query.garantiau = botonesPC.typeGarantiaU.value();
-  query.proveedor = botonesPC.typeProveedor.value();
-  query.fechaI = botonesPC.typeFechaI.value();
+  query.nombre = botonesPC.typePc[0].value();
+  query.lugar = botonesPC.typePc[1].value();
+  query.numero = botonesPC.typePc[2].value();
+  query.ip = botonesPC.typePc[3].value();
+  query.ssd = botonesPC.typePc[4].value();
+  query.ramt = botonesPC.typePc[5].value();
+  query.ramm = botonesPC.typePc[6].value();
+  query.cpu = botonesPC.typePc[7].value();
+  query.mother = botonesPC.typePc[8].value();
+  query.video = botonesPC.typePc[9].value();
+  query.fuente = botonesPC.typePc[10].value();
+  query.mouse = botonesPC.typePc[11].value();
+  query.teclado = botonesPC.typePc[12].value();
+  query.monitor = botonesPC.typePc[13].value();
+  query.categoria = botonesPC.typePc[14].value();
+  query.garantiav = botonesPC.typePc[15].value();
+  query.garantiau = botonesPC.typePc[16].value();
+  query.proveedor = botonesPC.typePc[17].value();
+  query.fechaC = botonesPC.typePc[18].value();
+  query.fechaI = botonesPC.typePc[19].value();
 }
 
 function typeCOM(){
@@ -382,7 +318,6 @@ function verData(data){
     text(data.categoria, ancho/2+ dif, 59*dif+bot.alto);
     text(data.garantiav, ancho/2+ dif, 62*dif+bot.alto);
     text(data.garantiau, ancho/2+ dif, 65*dif+bot.alto);
-    text(data.windows  , ancho/2+ dif, 68*dif+bot.alto);
 
   }else{
     text(data.name, ancho/2+ dif, 5*dif+bot.alto);
