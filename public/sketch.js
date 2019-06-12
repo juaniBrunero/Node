@@ -30,8 +30,8 @@ let lastData = "Error"
 
 function setup() {
 
-  socket = io.connect('https://192.168.0.5:3000');
-  //socket = io.connect('https://10.10.3.169:3000');
+  //socket = io.connect('https://192.168.0.5:3000');
+  socket = io.connect('https://10.10.3.169:3000');
 
   //MSJ DE RECEPCION
   socket.on('recb'   , (data) => console.log("Recibido"));
@@ -317,9 +317,9 @@ function verData(data){
     text(data.monitor  , ancho/2+ dif, 56*dif+bot.alto);
     text(data.categoria, ancho/2+ dif, 59*dif+bot.alto);
     text(data.garantiav, ancho/2+ dif, 62*dif+bot.alto);
+  }else{
     text(data.garantiau, ancho/2+ dif, 65*dif+bot.alto);
 
-  }else{
     text(data.name, ancho/2+ dif, 5*dif+bot.alto);
     text(data.type, ancho/2+ dif, 6*dif+bot.alto);
   }
