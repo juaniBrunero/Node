@@ -1,6 +1,7 @@
 
 let express = require('express');
 let fs = require('fs');
+var mysql = require("mysql");
 
 let https = require('https');
 
@@ -8,11 +9,19 @@ let app = express();
 
 let server = https.createServer({
   key:  fs.readFileSync('server.key'),
-  cert: fs.readFileSync('server.crt')
+  cert: fs.readFileSync('server.cert')
 }, app).listen(3000, function() {
   console.log('Listen server')
 })
 
+let connected = false;
+
+var con = mysql.createConnection({
+  host: "10.10.2.195",
+  port: "32768",
+  user: "root",
+  password: "sanluis2019"
+});
 
 function listen() {
   let host = server.address().address;
@@ -28,28 +37,30 @@ io.sockets.on('connection', (socket) => {
     console.log("Cliente nuevo: " + socket.id);
 
     socket.on('send', (data) => {
-
-        socket.emit('recb', "ok");
-        console.log("Recibido");
-
-      }
-    );
+      socket.emit('recb', "ok");
+      console.log("Recibido");
+    });
 
     socket.on('qrS', (data) => {
-
-        socket.emit('recb', "ok");
-        obj = JSON.parse(fs.readFileSync('data.json', 'utf8'));
-        qrSearched = obj.info.find((tmp) => tmp.name == data);
-        if(qrSearched != undefined){
-          console.log("Encontre: " + qrSearched.name);
-          socket.emit('qrSList', qrSearched);
-        }else{
-          console.log("No encontre");
-          socket.emit('qrSList', "Not");
-        }
-        delete obj, qrSearched;
+      socket.emit('recb', "ok");
+      if (connected){
+        con.query("SELECT * FROM info WHERE nam =" + data, function (err, result, fields) {
+          if (err) console.log(err);
+          if (result.length == 1){
+            console.log("Encontre: " + result[0].nam);
+            socket.emit('qrSList', result[0]);
+          }else{
+            console.log("No encontre");
+            socket.emit('qrSList', "Not");
+          }
+          delete result;
+        });
+      }else{
+        connectDB(con);
+        console.log("Error DB");
+        socket.emit('qrSList', "Error");
       }
-    );
+    });
 
     socket.on('qrW', (data) => {
 
@@ -105,3 +116,14 @@ io.sockets.on('connection', (socket) => {
     socket.on('disconnect', () => console.log("Client desconectado: " + socket.id));
   }
 );
+
+function connectDB(db){
+  try{
+    db.connect();
+    db.query("USE inventariopc");
+    connected = true;
+  }catch(e){
+    console.log(e);
+    connected = false;
+  }
+}

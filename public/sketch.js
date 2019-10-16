@@ -30,6 +30,7 @@ let lastData = "Error"
 
 function setup() {
 
+  //socket = io.connect('https://10.10.3.169:3000');
   //socket = io.connect('https://192.168.0.5:3000');
   socket = io.connect('https://10.10.3.169:3000');
 
@@ -104,8 +105,12 @@ function mouseClicked(){
   if(mode == 0){
     if(mouseTouch(dif, dif, dif + bot.ancho, dif + bot.alto)){
       scanLook();
+    }else if(mouseTouch(dif, 2*dif + bot.alto, dif + bot.ancho, 2*dif + 2*bot.alto)){
+      scanValor();
     }else if(mouseTouch(2 * dif + bot.ancho, dif, 2 * (dif + bot.ancho), dif+bot.alto)){
       scanSearch();
+    }else if(mouseTouch(2 * dif + bot.ancho, 2*dif + bot.alto, 2 * (dif + bot.ancho), 2*dif + 2*bot.alto)){
+      exportBase();
     }
     if(data != undefined){
       socket.emit('send', data);
@@ -121,11 +126,15 @@ function mouseTouch(xm, ym, xM, yM){
 function drawMenu(){
   fill(255);
   rect(dif, dif, bot.ancho, bot.alto);
+  rect(dif, 2*dif + bot.alto, bot.ancho, bot.alto);
   rect(2 * dif + bot.ancho, dif, bot.ancho, bot.alto);
+  rect(2 * dif + bot.ancho, 2*dif + bot.alto, bot.ancho, bot.alto);
   textSize(18);
   fill(0);
-  text("ESCANEAR", bot.ancho/2 - 4*dif, dif + bot.alto / 2);
+  text("ESCANEAR",  bot.ancho/2 - 4*dif            , dif + bot.alto / 2);
+  text("BUSCAR",  bot.ancho/2 - 4*dif            , 2*dif + bot.alto * 3 / 2);
   text("MODIFICAR", bot.ancho + bot.ancho/2 - 3*dif, dif + bot.alto / 2);
+  text("EXPORTAR",  bot.ancho + bot.ancho/2 - 3*dif, 2*dif + bot.alto * 3 / 2);
 }
 
 function windowResized() {
@@ -147,6 +156,15 @@ function scanLook(){
   .catch(err => console.error(err));
 }
 
+function scanValor(){
+  var result = {};
+  result.text = 1;
+  socket.emit('qrS', result.text);
+  fill(255);
+  query.name = result.text;
+  text(1, ancho/2, 2*dif+bot.alto);
+}
+
 function scanSearch(){
   select('video').show();
   codeReader
@@ -164,14 +182,14 @@ function completeMenu(){
   botonADD.show();
   botonDEL.show();
   select('video').hide();
-  if(query.type != undefined){
-    if(query.type == "PC"){
+  if(query.typ != undefined){
+    if(query.typ == "PC"){
       cambiarModo(2);
-    }else if(query.type == "DEL"){
+    }else if(query.typ == "DEL"){
       socket.emit('qrD', query.name);
       query = {};
       cambiarModo(0);
-    }else if(query.type == "ADD"){
+    }else if(query.typ == "ADD"){
       cambiarModo(3);
     }else{
       cambiarModo(0);
@@ -260,9 +278,9 @@ function prepararPC(b, x, y, bot, val){
 
 function typePc(){
   query.nombre = botonesPC.typePc[0].value();
-  query.lugar = botonesPC.typePc[1].value();
   query.numero = botonesPC.typePc[2].value();
   query.ip = botonesPC.typePc[3].value();
+  query.lugar = botonesPC.typePc[1].value();
   query.ssd = botonesPC.typePc[4].value();
   query.ramt = botonesPC.typePc[5].value();
   query.ramm = botonesPC.typePc[6].value();
@@ -293,46 +311,45 @@ function verData(data){
     text("No encontrado", ancho/2 + dif, 8*dif+bot.alto);
   }else if(data == "YES"){
     text("Ya se encuentra", ancho/2 + dif, 5*dif+bot.alto);
-  }else if(data.type == "PC"){
-    text(data.name     , ancho/2+ dif,  5*dif+bot.alto);
-    text(data.type     , ancho/2+ dif,  8*dif+bot.alto);
-    text(data.nombre   , ancho/2+ dif, 11*dif+bot.alto);
-    text(data.lugar    , ancho/2+ dif, 14*dif+bot.alto);
-    text(data.numero   , ancho/2+ dif, 17*dif+bot.alto);
-    text(data.proveedor, ancho/2+ dif, 20*dif+bot.alto);
-    text(data.fechac   , ancho/2+ dif, 23*dif+bot.alto);
-    text(data.fechaI   , ancho/4+ dif, 23*dif+bot.alto);
+  }else if(data.typ == "PC"){
+    text(data.nam      || "-", ancho/2+ dif,  5*dif+bot.alto);
+    text(data.typ     || "-", ancho/2+ dif,  8*dif+bot.alto);
+    text(data.nombre   || "-", ancho/2+ dif, 11*dif+bot.alto);
+    text(data.lugar    || "-", ancho/2+ dif, 14*dif+bot.alto);
+    text(data.numero   || "-", ancho/2+ dif, 17*dif+bot.alto);
+    text(data.proveedor|| "-", ancho/2+ dif, 20*dif+bot.alto);
+    text(data.fechac   || "-", ancho/2+ dif, 23*dif+bot.alto);
+    text(data.fechaI   || "-", ancho/4+ dif, 23*dif+bot.alto);
 
-    text(data.ip       , ancho/2+ dif, 26*dif+bot.alto);
-    text(data.cpu      , ancho/2+ dif, 29*dif+bot.alto);
-    text(data.ssd      , ancho/2+ dif, 32*dif+bot.alto);
-    text(data.ramt     , ancho/2+ dif, 35*dif+bot.alto);
-    text(data.ramm     , ancho/2+ dif, 38*dif+bot.alto);
-    text(data.mother   , ancho/2+ dif, 41*dif+bot.alto);
-    text(data.video    , ancho/2+ dif, 44*dif+bot.alto);
-    text(data.fuente   , ancho/2+ dif, 47*dif+bot.alto);
+    text(data.ip       || "-", ancho/2+ dif, 26*dif+bot.alto);
+    text(data.cpu      || "-", ancho/2+ dif, 29*dif+bot.alto);
+    text(data.ssd      || "-", ancho/2+ dif, 32*dif+bot.alto);
+    text(data.ramt     || "-", ancho/2+ dif, 35*dif+bot.alto);
+    text(data.ramm     || "-", ancho/2+ dif, 38*dif+bot.alto);
+    text(data.mother   || "-", ancho/2+ dif, 41*dif+bot.alto);
+    text(data.video    || "-", ancho/2+ dif, 44*dif+bot.alto);
+    text(data.fuente   || "-", ancho/2+ dif, 47*dif+bot.alto);
 
-    text(data.mouse    , ancho/2+ dif, 50*dif+bot.alto);
-    text(data.teclado  , ancho/2+ dif, 53*dif+bot.alto);
-    text(data.monitor  , ancho/2+ dif, 56*dif+bot.alto);
-    text(data.categoria, ancho/2+ dif, 59*dif+bot.alto);
-    text(data.garantiav, ancho/2+ dif, 62*dif+bot.alto);
+    text(data.mouse    || "-", ancho/2+ dif, 50*dif+bot.alto);
+    text(data.teclado  || "-", ancho/2+ dif, 53*dif+bot.alto);
+    text(data.monitor  || "-", ancho/2+ dif, 56*dif+bot.alto);
+    text(data.categoria|| "-", ancho/2+ dif, 59*dif+bot.alto);
+    text(data.garantiav|| "-", ancho/2+ dif, 62*dif+bot.alto);
+    text(data.garantiau|| "-", ancho/2+ dif, 65*dif+bot.alto);
   }else{
-    text(data.garantiau, ancho/2+ dif, 65*dif+bot.alto);
-
-    text(data.name, ancho/2+ dif, 5*dif+bot.alto);
-    text(data.type, ancho/2+ dif, 6*dif+bot.alto);
+    text(data.name|| "-", ancho/2+ dif, 5*dif+bot.alto);
+    text(data.typ|| "-", ancho/2+ dif, 6*dif+bot.alto);
   }
 }
 
 function modoPC(){
-  query.type = "PC"
+  query.typ = "PC"
 }
 
 function modoADD(){
-  query.type = "ADD"
+  query.typ = "ADD"
 }
 
 function modoDEL(){
-  query.type = "DEL"
+  query.typ = "DEL"
 }
