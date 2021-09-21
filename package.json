@@ -9,6 +9,6 @@
     "express": "^4.16.4",
     "greenlock-express": "^2.6.8",
     "socket.io": "^2.2.0",
-    "ssh2": "^0.8.2"
+    "ssh2": "^1.4.0"
   }
 }
